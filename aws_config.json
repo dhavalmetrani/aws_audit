@@ -1,0 +1,9 @@
+{
+	"ebs_volumes":
+	[
+		{
+			"id":"spsdev",
+			"aws_profile":"spsdev"
+		}
+	]
+}
