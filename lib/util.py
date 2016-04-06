@@ -18,10 +18,10 @@ def write_to_file(content, file_name):
 ################################################
 # Send email message
 ################################################
-def send_email(sender = 'dhaval.metrani@autodesk.com', receivers = ['dhaval.metrani@autodesk.com']):
+def send_email(sender = 'dhavalmetrani@gmail.com', receivers = ['dhavalmetrani@gmail.com']):
 
-	message = """From: From Dhaval Metrani <dhaval.metrani@autodesk.com>
-	To: To Dhaval Metrani <dhaval.metrani@autodesk.com>
+	message = """From: From Dhaval Metrani <dhavalmetrani@gmail.com>
+	To: To Dhaval Metrani <dhavalmetrani@gmail.com>
 	Subject: AWS Audit report
 
 	AWS Audit report is ready.

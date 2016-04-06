@@ -1,12 +1,12 @@
 
 ################################################
 __author__ = "Dhaval Mertani"
-__copyright__ = "Copyright 2016, Autodesk"
+__copyright__ = "Copyright 2016"
 __credits__ = ["Dhaval Metrani"]
-__license__ = "Autodesk License"
+__license__ = "License"
 __version__ = "1.0.0"
 __maintainer__ = "Dhaval Metrani"
-__email__ = "dhaval.metrani@autodesk.com"
+__email__ = "dhavalmetrani@gmail.com"
 __status__ = "Prototype"
 ################################################
 
