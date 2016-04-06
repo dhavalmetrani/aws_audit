@@ -11,8 +11,10 @@ from lib.util import *
 def use_profile(aws_profile=Constants.AWS_PROFILE_DEFAULT):
 	try:
 		boto3.setup_default_session(profile_name=aws_profile)
-	except:
-		boto3.setup_default_session(profile_name=Constants.AWS_PROFILE_DEFAULT)
+	except:		
+		# boto3.setup_default_session(profile_name=Constants.AWS_PROFILE_DEFAULT)
+		return False
+	return True
 ################################################
 
 

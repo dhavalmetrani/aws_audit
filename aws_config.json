@@ -4,6 +4,10 @@
 		{
 			"id":"spsdev",
 			"aws_profile":"spsdev"
+		},
+		{
+			"id":"default",
+			"aws_profile":"default"
 		}
 	]
 }

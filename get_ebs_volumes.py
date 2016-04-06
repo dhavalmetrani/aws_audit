@@ -29,39 +29,75 @@ from lib.util import *
 def main(argv):
 
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-ap", "--aws-profile", help="Provide name of AWS profile")	
+	# parser.add_argument("-ap", "--aws-profile", help="Provide name of AWS profile")	
 	# parser.add_argument("-o", "--output-file", help="Provide path to output file")	
-	# parser.add_argument("-ac", "--aws-config", help="Provide name of json file containing AWS configs")
+	parser.add_argument("-ac", "--aws-config", help="Provide name of json file containing AWS configs")
 	args = parser.parse_args()
-	aws_profile = args.aws_profile
+	aws_config = args.aws_config
+	error_msg = ""
 
-	if not aws_profile:
-		aws_profile = Constants.AWS_PROFILE_DEFAULT
+	if not aws_config:
+		error_msg = "[ERROR] Please pass value for config file."
+	elif not file_exists(aws_config):
+		error_msg = "[ERROR] File %s does not exist." % aws_config
+		# aws_config = Constants.AWS_config_DEFAULT
 	# if not output_file:
 	# 	output_file = Constants.OUTPUT_FILE
+	if error_msg:
+		print error_msg
+		sys.exit(1)
 
-	output_file = aws_profile + Constants.OUTPUT_FORMAT
 
+	print "[INFO] Using AWS config: " + aws_config
 
-	print "[INFO] Using AWS profile: " + aws_profile
+	json_data = load_json(aws_config)
 
-	use_profile(aws_profile)
+	output_folder = create_output_folder()
 
+	# print json_data['ebs_volumes'][0]['aws_profile']
+	# print json_data['ebs_volumes'][1]['aws_profile']
+
+	parse_ebs_volumes(json_data, output_folder)
+	
+	# # prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_ALL)
+	# # prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_INUSE)
+	# prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVAILABLE)
+
+	# print "[INFO] Done. Output: " + output_file
+	# # print volume_details
+
+	send_email()
+################################################
+
+################################################
+# Create output folser
+################################################
+def create_output_folder():
 	now = datetime.datetime.now()
 	output_folder = "./" + Constants.OUTPUT_FOLDER + "/" + "%s" % now
 	create_folder(output_folder)
-	output_file = os.path.join(output_folder, output_file)
-	
-	
-	# prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_ALL)
-	# prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_INUSE)
-	prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVAILABLE)
+	return output_folder
 
-	print "[INFO] Done. Output: " + output_file
-	# print volume_details
+################################################
 
-	send_email()
 
+################################################
+# Parse EBS volumes
+################################################
+def parse_ebs_volumes(json_data, output_folder):
+	for ebs_volume in json_data['ebs_volumes']:
+		print "Processing for profile: " + ebs_volume['aws_profile']
+		aws_profile = ebs_volume['aws_profile']
+		if use_profile(aws_profile):
+			output_file = aws_profile + Constants.OUTPUT_FORMAT
+			output_file = os.path.join(output_folder, output_file)
+			prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVAILABLE)
+			print "[INFO] Done. Output: " + output_file
+		else:
+			print "[ERROR] AWS profile %s does not exist. Skipping. " %aws_profile
+
+
+################################################
 
 
 ################################################

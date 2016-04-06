@@ -3,6 +3,8 @@
 import smtplib
 import traceback
 import os
+import os.path
+import json
 
 ################################################
 
@@ -43,6 +45,24 @@ def send_email(sender = 'dhavalmetrani@gmail.com', receivers = ['dhavalmetrani@g
 ################################################
 def create_folder(folder_path):
 	os.makedirs(folder_path)
+################################################
+
+
+################################################
+# Check if file exists
+################################################
+def file_exists(file_path):	
+	return os.path.isfile(file_path) 
+################################################
+
+
+################################################
+# load json file
+################################################
+def load_json(file_path):	
+	with open(file_path) as data_file:
+		data = json.load(data_file)
+	return data
 ################################################
 
 
