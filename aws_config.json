@@ -1,13 +1,16 @@
 {
-	"ebs_volumes":
+	"aws_profiles":
 	[
 		{
 			"id":"spsdev",
-			"aws_profile":"spsdev"
+			"aws_profile":"spsdev-aws_paas_auditor_readonly",
+			"volumes_to_consider":"available",
+			"_comments":"available, inuse, all"
 		},
 		{
 			"id":"default",
-			"aws_profile":"default"
+			"aws_profile":"default",
+			"volumes_to_consider":"available" 
 		}
 	]
 }

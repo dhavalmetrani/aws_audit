@@ -38,6 +38,9 @@ def prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVA
 	volume_details = "ID, State, Size, Type, IOPS, Created, Availability Zone, Monthly $\n"
 	volume_details_available = ""
 	volume_details_inuse = ""
+	volume_details_total = ""
+	totalcost_available = 0
+	totalcost_inuse = 0	
 
 	cost = 1
 	print "[INFO] Computing resources..."
@@ -52,20 +55,25 @@ def prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVA
 
 		if volume.state == Constants.AWS_VOLUMES_AVAILABLE:			
 			volume_details_available += "%s, %s, %s, %s, %s, %s, %s, %s" %(volume.id, volume.state, volume.size, volume.volume_type, volume.iops, volume.create_time, volume.availability_zone, cost) + "\n"
+			totalcost_available += cost
 		else:
 			volume_details_inuse += "%s, %s, %s, %s, %s, %s, %s, %s" %(volume.id, volume.state, volume.size, volume.volume_type, volume.iops, volume.create_time, volume.availability_zone, cost) + "\n"
-
+			totalcost_inuse += cost
 
 	if volumes == Constants.AWS_VOLUMES_ALL:
 		# print "[INFO] Consider all volumes."
-		volume_details = volume_details + volume_details_available + volume_details_inuse
+		volume_details_total = ", , , , , , , %s" %(totalcost_available + totalcost_inuse) + "\n"
+		volume_details = volume_details + volume_details_available + volume_details_inuse		
 	elif volumes == Constants.AWS_VOLUMES_AVAILABLE:
 		# print "[INFO] Consider available volumes only."
-		volume_details = volume_details + volume_details_available
+		volume_details_total = ", , , , , , , %s" %(totalcost_available) + "\n"
+		volume_details = volume_details + volume_details_available		
 	else:
 		# print "[INFO] Consider inuse volumes only."
+		volume_details_total = ", , , , , , , %s" %(totalcost_inuse) + "\n"
 		volume_details = volume_details + volume_details_inuse
 
 
-	write_to_file(volume_details, output_file)
+
+	write_to_file(volume_details + volume_details_total, output_file)
 ################################################

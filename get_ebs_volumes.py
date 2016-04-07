@@ -85,13 +85,16 @@ def create_output_folder():
 # Parse EBS volumes
 ################################################
 def parse_ebs_volumes(json_data, output_folder):
-	for ebs_volume in json_data['ebs_volumes']:
-		print "Processing for profile: " + ebs_volume['aws_profile']
-		aws_profile = ebs_volume['aws_profile']
+	for ebs_volume in json_data[Constants.AWS_PROFILES]:
+		aws_profile_id = ebs_volume[Constants.AWS_PROFILE_ID]
+		aws_profile = ebs_volume[Constants.AWS_PROFILE]
+		volumes_to_consider = ebs_volume[Constants.AWS_VOLUMES_TO_CONSIDER]
+		print "Processing for profile: " + aws_profile_id
+
 		if use_profile(aws_profile):
-			output_file = aws_profile + Constants.OUTPUT_FORMAT
+			output_file = aws_profile_id + Constants.OUTPUT_FORMAT
 			output_file = os.path.join(output_folder, output_file)
-			prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVAILABLE)
+			prepare_aws_ebs_volume_report(output_file, volumes_to_consider)
 			print "[INFO] Done. Output: " + output_file
 		else:
 			print "[ERROR] AWS profile %s does not exist. Skipping. " %aws_profile

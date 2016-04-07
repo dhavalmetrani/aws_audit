@@ -14,6 +14,11 @@ class Constants:
 	AWS_VOLUMES_ALL = "all"
 	AWS_VOLUMES_AVAILABLE = "available"
 	AWS_VOLUMES_INUSE = "inuse"
+	AWS_VOLUMES_TO_CONSIDER = "volumes_to_consider"
+	
+	AWS_PROFILES = "aws_profiles"
+	AWS_PROFILE_ID = "id"
+	AWS_PROFILE = "aws_profile"
 
 	OUTPUT_FOLDER = "output"
 	OUTPUT_FILE = "output.csv"
