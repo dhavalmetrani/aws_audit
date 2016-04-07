@@ -8,9 +8,10 @@
 			"_comments":"available, inuse, all"
 		},
 		{
-			"id":"default",
-			"aws_profile":"default",
-			"volumes_to_consider":"available" 
+			"id":"a360",
+			"aws_profile":"a360-aws_paas_auditor_readonly",
+			"volumes_to_consider":"available",
+			"_comments":"available, inuse, all"
 		}
 	]
 }

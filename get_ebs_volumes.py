@@ -57,8 +57,8 @@ def main(argv):
 	# print json_data['ebs_volumes'][0]['aws_profile']
 	# print json_data['ebs_volumes'][1]['aws_profile']
 
-	parse_ebs_volumes(json_data, output_folder)
-	
+	parse_aws_profiles(json_data, output_folder)
+
 	# # prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_ALL)
 	# # prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_INUSE)
 	# prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVAILABLE)
@@ -84,24 +84,23 @@ def create_output_folder():
 ################################################
 # Parse EBS volumes
 ################################################
-def parse_ebs_volumes(json_data, output_folder):
-	for ebs_volume in json_data[Constants.AWS_PROFILES]:
-		aws_profile_id = ebs_volume[Constants.AWS_PROFILE_ID]
-		aws_profile = ebs_volume[Constants.AWS_PROFILE]
-		volumes_to_consider = ebs_volume[Constants.AWS_VOLUMES_TO_CONSIDER]
+def parse_aws_profiles(json_data, output_folder):
+	for aws_profile_entry in json_data[Constants.AWS_PROFILES]:
+		aws_profile_id = aws_profile_entry[Constants.AWS_PROFILE_ID]
+		aws_profile = aws_profile_entry[Constants.AWS_PROFILE]
+		volumes_to_consider = aws_profile_entry[Constants.AWS_VOLUMES_TO_CONSIDER]
 		print "Processing for profile: " + aws_profile_id
 
 		if use_profile(aws_profile):
-			output_file = aws_profile_id + Constants.OUTPUT_FORMAT
+			output_file = aws_profile_id
 			output_file = os.path.join(output_folder, output_file)
-			prepare_aws_ebs_volume_report(output_file, volumes_to_consider)
-			print "[INFO] Done. Output: " + output_file
+			prepare_aws_ebs_volume_report(output_file + "-" + Constants.AWS_EC2_VOLUME + Constants.OUTPUT_FORMAT, volumes_to_consider)
+			prepare_aws_rds_report(output_file + "-" + Constants.AWS_RDS + Constants.OUTPUT_FORMAT)
+
+			print "[INFO] Done. Output: " + output_folder
 		else:
 			print "[ERROR] AWS profile %s does not exist. Skipping. " %aws_profile
-
-
 ################################################
-
 
 ################################################
 if __name__ == "__main__":

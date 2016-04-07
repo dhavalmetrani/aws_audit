@@ -43,19 +43,18 @@ def prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVA
 	totalcost_inuse = 0	
 
 	cost = 1
-	print "[INFO] Computing resources..."
+	print "[INFO] Computing Elastic Block storage volumes..."
 
 	for volume in ec2.volumes.all():
 		if not volume.iops:
-			# print "No IOPS"
 			cost = volume.size * Constants.EBS_PRICE[volume.volume_type]
 		else:
 			cost = volume.size * Constants.EBS_PRICE_GP2_IOPS + volume.iops * Constants.EBS_PRICE_IOPS
-			# print "IOPS"
 
 		if volume.state == Constants.AWS_VOLUMES_AVAILABLE:			
 			volume_details_available += "%s, %s, %s, %s, %s, %s, %s, %s" %(volume.id, volume.state, volume.size, volume.volume_type, volume.iops, volume.create_time, volume.availability_zone, cost) + "\n"
 			totalcost_available += cost
+			print "Available Volume [%s]\t ==> \t %s" %(volume.id, cost)						
 		else:
 			volume_details_inuse += "%s, %s, %s, %s, %s, %s, %s, %s" %(volume.id, volume.state, volume.size, volume.volume_type, volume.iops, volume.create_time, volume.availability_zone, cost) + "\n"
 			totalcost_inuse += cost
@@ -73,7 +72,49 @@ def prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVA
 		volume_details_total = ", , , , , , , %s" %(totalcost_inuse) + "\n"
 		volume_details = volume_details + volume_details_inuse
 
-
-
+	print "Total Cost ==> %s" % totalcost_available
 	write_to_file(volume_details + volume_details_total, output_file)
+	print "[INFO] Done. Computing Elastic Block storage volumes..."
+
+################################################
+
+
+################################################
+# Parse AWS RDS
+################################################
+def prepare_aws_rds_report(output_file):
+	rds = boto3.client(Constants.AWS_RDS)
+	rds_details = "Engine, Id, DB, Class, Status, Created, AZ, Secondary AZ, Monthly $\n"
+	totalcost = 0
+	cost = 1
+	print "[INFO] Computing RDS resources..."
+
+	for rds_instance in rds.describe_db_instances()["DBInstances"]:
+		# pp.pprint(rds_instance)		
+		rds_engine = rds_instance["Engine"]
+		rds_db_name = rds_instance["DBName"]
+		rds_db_instance_id = rds_instance["DBInstanceIdentifier"]		
+		rds_db_instance_class = rds_instance["DBInstanceClass"]
+		rds_db_instance_status = rds_instance["DBInstanceStatus"]
+		rds_instance_creation_time = rds_instance["InstanceCreateTime"]
+		rds_primary_az = rds_instance["AvailabilityZone"]
+		rds_multi_az = rds_instance["MultiAZ"]
+		if rds_multi_az == True:
+			rds_secondary_az = rds_instance["SecondaryAvailabilityZone"]
+
+		cost = Constants.RDS_PRICE[rds_engine + rds_db_instance_class] * 24 * 30
+		totalcost += cost
+		print "RDS [%s] \t ==> \t%s" %(rds_db_instance_id, cost)
+		# print totalcost
+		
+		rds_details += "%s, %s, %s, %s, %s, %s, %s, %s, %s" %(rds_engine, rds_db_name, rds_db_instance_id, rds_db_instance_class, rds_db_instance_status, rds_instance_creation_time, rds_primary_az, rds_secondary_az, cost) + "\n"
+		
+		# raw_input('Enter your input:')
+
+	rds_details_total = ", , , , , , , , %s" %(totalcost) + "\n"
+
+	print "Total Cost ==> %s" % totalcost	
+	write_to_file(rds_details + rds_details_total, output_file)
+	print "[INFO] Done. Computing RDS resources..."
+
 ################################################
