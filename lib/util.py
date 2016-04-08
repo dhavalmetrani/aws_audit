@@ -4,7 +4,7 @@ import traceback
 import os
 import os.path
 import json
-
+import pprint  
 ################################################
 
 ################################################
@@ -61,5 +61,14 @@ def load_json(file_path):
 	with open(file_path) as data_file:
 		data = json.load(data_file)
 	return data
+################################################
+
+
+################################################
+# Pretty print json
+################################################
+def print_json(data):	
+	pp = pprint.PrettyPrinter(indent=4)
+	pp.pprint(data)
 ################################################
 

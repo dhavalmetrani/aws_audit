@@ -96,6 +96,7 @@ def parse_aws_profiles(json_data, output_folder):
 			output_file = os.path.join(output_folder, output_file)
 			prepare_aws_ebs_volume_report(output_file + "-" + Constants.AWS_EC2_VOLUME + Constants.OUTPUT_FORMAT, volumes_to_consider)
 			prepare_aws_rds_report(output_file + "-" + Constants.AWS_RDS + Constants.OUTPUT_FORMAT)
+			prepare_aws_ec2_report(output_file + "-" + Constants.AWS_EC2 + Constants.OUTPUT_FORMAT)
 
 			print "[INFO] Done. Output: " + output_folder
 		else:

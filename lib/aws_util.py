@@ -102,7 +102,7 @@ def prepare_aws_rds_report(output_file):
 		if rds_multi_az == True:
 			rds_secondary_az = rds_instance["SecondaryAvailabilityZone"]
 
-		cost = Constants.RDS_PRICE[rds_engine + rds_db_instance_class] * 24 * 30
+		cost = Constants.AWS_RDS_PRICE[rds_engine + rds_db_instance_class] * 24 * 30
 		totalcost += cost
 		print "RDS [%s] \t ==> \t%s" %(rds_db_instance_id, cost)
 		# print totalcost
@@ -116,5 +116,58 @@ def prepare_aws_rds_report(output_file):
 	print "Total Cost ==> %s" % totalcost	
 	write_to_file(rds_details + rds_details_total, output_file)
 	print "[INFO] Done. Computing RDS resources..."
+
+################################################
+
+
+################################################
+# Parse AWS EC2
+################################################
+def prepare_aws_ec2_report(output_file):
+	ec2 = boto3.client(Constants.AWS_EC2)
+	# ec2 = get_aws_resource(Constants.AWS_EC2)
+	ec2_details = "Name, Id, Type, ImageId, LaunchTime, AZ, Public DNS, State, Monthly $\n"
+	totalcost = 0
+	cost = 1
+	key_name = ""
+	print "[INFO] Computing EC2 resources..."
+
+	# for ec2_instance in ec2.instances.all():	
+
+	for ec2_instance in ec2.describe_instances()[Constants.AWS_EC2_RESERVATIONS]:
+		# print_json(ec2_instance)
+		for instance in ec2_instance[Constants.AWS_EC2_INSTANCES]:
+			# print_json(instance)
+			try:				
+				key_name = instance[Constants.AWS_EC2_KEYNAME]
+			except:
+				key_name = ""
+			instance_id = instance[Constants.AWS_EC2_INSTANCEID]
+			instance_type = instance[Constants.AWS_EC2_INSTANCETYPE]
+			image_id = instance[Constants.AWS_EC2_IMAGEID]
+			launch_time = instance[Constants.AWS_EC2_LAUNCHTIME]
+			availability_zone = instance[Constants.AWS_EC2_PLACEMENT][Constants.AWS_EC2_AVAILABILITYZONE]
+			public_dns = instance[Constants.AWS_EC2_PUBLICDNSNAME]
+			state = instance[Constants.AWS_EC2_STATE][Constants.AWS_EC2_NAME]
+			if state == Constants.AWS_EC2_STATE_TERMINATED or state == Constants.AWS_EC2_STATE_STOPPED:
+				continue
+			try:
+				tags = instance[Constants.AWS_EC2_TAGS]
+			except:
+				tags = key_name
+			# platform = instance["Platform"]
+
+			cost = Constants.AWS_EC2_PRICE[instance_type] * 24 * 30
+			totalcost += cost
+
+			print "[EC2] Instance cost %s ==> %s" % (instance_id, cost)
+
+			ec2_details += "%s, %s, %s, %s, %s, %s, %s, %s, %s " %(key_name, instance_id, instance_type, image_id, launch_time, availability_zone, public_dns, state, cost) + "\n"
+
+	ec2_details_total = ", , , , , , , , %s" %(totalcost) + "\n"
+
+	print "Total Cost ==> %s" % totalcost	
+	write_to_file(ec2_details + ec2_details_total, output_file)
+	print "[INFO] Done. Computing EC2 resources..."
 
 ################################################
