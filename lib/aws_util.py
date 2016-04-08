@@ -90,7 +90,7 @@ def prepare_aws_rds_report(output_file):
 	print "[INFO] Computing RDS resources..."
 
 	for rds_instance in rds.describe_db_instances()["DBInstances"]:
-		# pp.pprint(rds_instance)		
+		# print_json(rds_instance)		
 		rds_engine = rds_instance["Engine"]
 		rds_db_name = rds_instance["DBName"]
 		rds_db_instance_id = rds_instance["DBInstanceIdentifier"]		
@@ -116,6 +116,43 @@ def prepare_aws_rds_report(output_file):
 	print "Total Cost ==> %s" % totalcost	
 	write_to_file(rds_details + rds_details_total, output_file)
 	print "[INFO] Done. Computing RDS resources..."
+
+################################################
+
+################################################
+# Parse AWS RDS
+################################################
+def prepare_aws_rds_snapshot_report(output_file):
+	rds = boto3.client(Constants.AWS_RDS)
+	rds_snapshot_details = "DBInstanceIdentifier, DBSnapshotIdentifier, Engine, SnapshotCreateTime, Status, StorageType, AZ, AllocatedStorage, Monthly $\n"
+	totalcost = 0
+	cost = 1
+	print "[INFO] Computing RDS snapshots..."
+
+	for rds_snapshot in rds.describe_db_snapshots()["DBSnapshots"]:
+		# print_json(rds_snapshot)
+
+		rds_snapshot_db_id = rds_snapshot["DBInstanceIdentifier"]
+		rds_snapshot_id = rds_snapshot["DBSnapshotIdentifier"]
+		rds_snapshot_engine = rds_snapshot["Engine"]		
+		rds_snapshot_creation_time = rds_snapshot["SnapshotCreateTime"]
+		rds_snapshot_status = rds_snapshot["Status"]
+		rds_snapshot_storage_type = rds_snapshot["StorageType"]
+		rds_snapshot_az = rds_snapshot["AvailabilityZone"]
+		rds_snapshot_storage = rds_snapshot["AllocatedStorage"]
+
+		cost = Constants.AWS_EBS_SIZE * rds_snapshot_storage
+
+		print "[INFO] RDS snapshot [%s]\t ==> %s" % (rds_snapshot_id, cost)
+		totalcost += cost
+
+		rds_snapshot_details += "%s, %s, %s, %s, %s, %s, %s, %s, %s" %(rds_snapshot_db_id, rds_snapshot_id, rds_snapshot_engine, rds_snapshot_creation_time, rds_snapshot_status, rds_snapshot_storage_type, rds_snapshot_az, rds_snapshot_storage, cost) + "\n"
+		
+	rds_snapshot_details_total = ", , , , , , , , %s" %(totalcost) + "\n"
+
+	print "Total Cost ==> %s" % totalcost	
+	write_to_file(rds_snapshot_details + rds_snapshot_details_total, output_file)
+	print "[INFO] Done. Computing RDS snapshots..."
 
 ################################################
 

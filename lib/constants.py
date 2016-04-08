@@ -132,9 +132,12 @@ class Constants:
 	AWS_EC2_PRICE["t1.micro"] = 0.02
 
 
+	AWS_EBS_SIZE = 0.095
+
 	AWS_EC2 = "ec2"
 	AWS_EC2_VOLUME = "ec2_volumes"
 	AWS_RDS = "rds"
+	AWS_RDS_SNAPSHOTS = "rds_snapshots"
 	AWS_PROFILE_DEFAULT = "default"
 
 	AWS_VOLUMES_ALL = "all"

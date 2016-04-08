@@ -53,18 +53,7 @@ def main(argv):
 	json_data = load_json(aws_config)
 
 	output_folder = create_output_folder()
-
-	# print json_data['ebs_volumes'][0]['aws_profile']
-	# print json_data['ebs_volumes'][1]['aws_profile']
-
 	parse_aws_profiles(json_data, output_folder)
-
-	# # prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_ALL)
-	# # prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_INUSE)
-	# prepare_aws_ebs_volume_report(output_file, volumes=Constants.AWS_VOLUMES_AVAILABLE)
-
-	# print "[INFO] Done. Output: " + output_file
-	# # print volume_details
 
 	send_email()
 ################################################
@@ -96,6 +85,7 @@ def parse_aws_profiles(json_data, output_folder):
 			output_file = os.path.join(output_folder, output_file)
 			prepare_aws_ebs_volume_report(output_file + "-" + Constants.AWS_EC2_VOLUME + Constants.OUTPUT_FORMAT, volumes_to_consider)
 			prepare_aws_rds_report(output_file + "-" + Constants.AWS_RDS + Constants.OUTPUT_FORMAT)
+			prepare_aws_rds_snapshot_report(output_file + "-" + Constants.AWS_RDS_SNAPSHOTS + Constants.OUTPUT_FORMAT)
 			prepare_aws_ec2_report(output_file + "-" + Constants.AWS_EC2 + Constants.OUTPUT_FORMAT)
 
 			print "[INFO] Done. Output: " + output_folder
