@@ -31,3 +31,8 @@ I. Write a tool which would:
 		}
 	]
 }
+
+
+TODO:
+1. Add scanning for all regions for an account.
+2. Look for API to check cost instead of hard-coding.
