@@ -60,6 +60,7 @@ class Constants:
 	AWS_EC2_INSTANCE_STATE[AWS_EC2_STATE_STOPPED] = 8
 
 	AWS_EC2_RESERVATIONS = "Reservations"
+	AWS_EC2_RESERVED_INSTANCES = "ReservedInstances"
 	AWS_EC2_INSTANCES = "Instances"
 	AWS_EC2_KEYNAME = "KeyName"
 	AWS_EC2_INSTANCEID = "InstanceId"
@@ -135,6 +136,8 @@ class Constants:
 	AWS_EBS_SIZE = 0.095
 
 	AWS_EC2 = "ec2"
+	AWS_EC2_RI = "ec2_reserved_instances"
+	AWS_EC2_RAI = "ec2_reserved_actual_instances"
 	AWS_EC2_VOLUME = "ec2_volumes"
 	AWS_RDS = "rds"
 	AWS_RDS_SNAPSHOTS = "rds_snapshots"

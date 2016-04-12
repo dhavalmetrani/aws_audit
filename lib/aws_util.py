@@ -213,6 +213,12 @@ def prepare_aws_ec2_report(output_file):
 				except:
 					tags = key_name
 				# platform = instance["Platform"]
+				instance_count = 0
+				try:
+					instance_count = ACTUAL_INSTANCES[instance_type, availability_zone]
+					ACTUAL_INSTANCES[instance_type,availability_zone] += 1
+				except:
+					ACTUAL_INSTANCES[instance_type, availability_zone] = 1
 
 				cost = Constants.AWS_EC2_PRICE[instance_type] * 24 * 30
 				totalcost += cost
@@ -226,5 +232,103 @@ def prepare_aws_ec2_report(output_file):
 	print "Total Cost ==> %s" % totalcost	
 	write_to_file(ec2_details + ec2_details_total, output_file)
 	print "[INFO] Done. Computing EC2 resources..."
+
+################################################
+
+
+################################################
+# Parse AWS EC2 reserved instance report
+################################################
+def prepare_aws_ec2_reserved_report(output_file):
+	ec2 = boto3.client(Constants.AWS_EC2)
+	# ec2 = get_aws_resource(Constants.AWS_EC2)
+	ec2_details = "InstanceType, InstanceCount, ProductDescription, ReservedInstancesId, AvailabilityZone, Duration (days), End, State, OfferingType\n"
+
+	# reserved_report = "InstanceType, AvailabilityZone, ReserveCount, Actual Count, End, OfferingType\n"
+
+	totalcost = 0
+	cost = 1
+	key_name = ""
+	print "[INFO] Computing EC2 resources..."
+
+	# for ec2_instance in ec2.instances.all():	
+
+	for ec2_region in ec2.describe_regions()['Regions']:
+		region_name = ec2_region['RegionName']
+		print "[INFO] Considering region: " + region_name
+		ec2_region_obj = boto3.client(Constants.AWS_EC2, region_name = region_name)
+		
+		for ec2_instance in ec2_region_obj.describe_reserved_instances()[Constants.AWS_EC2_RESERVED_INSTANCES]:
+			# print_json(ec2_instance)
+			print "[INFO] Considering reserved instance %s " % (ec2_instance["ReservedInstancesId"])
+
+			instance_type = ec2_instance[Constants.AWS_EC2_INSTANCETYPE]
+			instance_count = ec2_instance["InstanceCount"]
+			instance_description = ec2_instance["ProductDescription"]
+			instance_id = ec2_instance["ReservedInstancesId"]
+			instance_az = ec2_instance["AvailabilityZone"]
+			instance_duration = ec2_instance["Duration"]/(24*60*60)
+			instance_end = ec2_instance["End"]
+			instance_state = ec2_instance["State"]
+			instance_offering_type = ec2_instance["OfferingType"]
+
+			if instance_state == "retired": 
+				continue
+
+			RESERVED_INSTANCES[instance_type, instance_az] = instance_count
+
+	# 			cost = Constants.AWS_EC2_PRICE[instance_type] * 24 * 30
+	# 			totalcost += cost
+
+	# 			print "[EC2] Instance cost %s ==> %s" % (instance_id, cost)
+
+			ec2_details += "%s, %s, %s, %s, %s, %s, %s, %s, %s" %(instance_type, instance_count, instance_description, instance_id, instance_az, instance_duration, instance_end, instance_state, instance_offering_type) + "\n"
+			# reserved_report += "%s, %s, %s, %s, %s, %s" %(instance_type, instance_az, instance_count, ACTUAL_INSTANCES[instance_type + instance_az], instance_end, instance_offering_type) + "\n"
+
+	
+	# ec2_details_total = ", , , , , , , , %s" %(totalcost) + "\n"
+	# print "Total Cost ==> %s" % totalcost	
+	write_to_file(ec2_details, output_file)
+	print "[INFO] Done. Computing reserved EC2 resources..."
+
+################################################
+
+
+
+################################################
+# Parse AWS EC2 reserved instance report
+################################################
+def prepare_aws_ec2_reserved_actual_report(output_file):
+	reserved_report = "InstanceType, AvailabilityZone, ReserveCount, Actual Count\n"
+	print "[INFO] Computing EC2 resources..."
+	parsed = False
+
+	# print RESERVED_INSTANCES.items()
+	# print ACTUAL_INSTANCES
+
+	# for key_tuple_reserved in RESERVED_INSTANCES.keys():
+	# 	print key_tuple_reserved
+
+	for key_tuple_actual in ACTUAL_INSTANCES.keys():
+		parsed = False
+		# print key_tuple_actual	
+		for key_tuple_reserved in RESERVED_INSTANCES.keys():
+			if key_tuple_actual == key_tuple_reserved:
+				# print key_tuple_actual
+				parsed = True
+				reserved_report += "%s, %s, %s, %s" %(key_tuple_actual[0], key_tuple_actual[1], RESERVED_INSTANCES[key_tuple_actual[0], key_tuple_actual[1]], ACTUAL_INSTANCES[key_tuple_actual[0], key_tuple_actual[1]]) + "\n"
+		# 	else:
+		# 		reserved_report += "%s, %s, %s, %s" %(key_tuple_actual[0], key_tuple_actual[1], "0", ACTUAL_INSTANCES[key_tuple_actual[0], key_tuple_actual[1]]) + "\n"
+
+		if not parsed:
+			reserved_report += "%s, %s, %s, %s" %(key_tuple_actual[0], key_tuple_actual[1], "0", ACTUAL_INSTANCES[key_tuple_actual[0], key_tuple_actual[1]]) + "\n"
+
+	# for 
+	
+	# reserved_report += "%s, %s, %s, %s, %s, %s" %(instance_type, instance_az, instance_count, ACTUAL_INSTANCES[instance_type + instance_az], instance_end, instance_offering_type) + "\n"
+
+	# write_to_file(ec2_details, output_file)
+	write_to_file(reserved_report, output_file)
+	print "[INFO] Done. Computing reserved EC2 resources..."
 
 ################################################
